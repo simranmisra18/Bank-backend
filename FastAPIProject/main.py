@@ -48,6 +48,10 @@ async def login(branch_id: str,
     # Prepare response
     return {"token": token, "data": branch}
 
+@app.get("/")
+async def test():
+    return {"message": "Hello World"}
+
 @app.get("/api/users")
 async def login(branchid: str,
                 offset: int,
