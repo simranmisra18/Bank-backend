@@ -1,11 +1,11 @@
 from typing import Optional
 
-from fastapi import HTTPException, status, Depends
 import jwt
+from fastapi import HTTPException, status, Depends
 from fastapi.security import SecurityScopes, HTTPAuthorizationCredentials, HTTPBearer
 
 from SQLModels.Branch import Branch
-from Settings import JWTSettings
+from jwt_settings import GetJWTSettings
 from copy import deepcopy
 import time
 
@@ -13,7 +13,7 @@ from Exceptions import UnauthorizedException, UnauthenticatedException
 
 class VerifyToken:
     def __init__(self):
-        self.jwt_settings = JWTSettings()
+        self.jwt_settings = GetJWTSettings()
 
     def generate_token(self, branch: Branch | None = None) -> str | None:
         payload = deepcopy(self.jwt_settings.get_jwt_payload())

@@ -3,14 +3,23 @@ from functools import lru_cache
 import time
 
 
-class DatabaseSettings(BaseSettings):
+class AZDatabaseSettings(BaseSettings):
     dbname: str
     dbhost: str
     dbport: str
     dbuser: str
     dbpassword: str
 
-    model_config = SettingsConfigDict(env_file="env/database.env")
+    model_config = SettingsConfigDict(env_file="env/az-bank.env")
+
+class TXDatabaseSettings(BaseSettings):
+    dbname: str
+    dbhost: str
+    dbport: str
+    dbuser: str
+    dbpassword: str
+
+    model_config = SettingsConfigDict(env_file="env/tx-bank.env")
 
 class JWTSettings(BaseSettings):
     jwt_issuer: str
@@ -48,18 +57,3 @@ class JWTSettings(BaseSettings):
 
     def get_jwt_payload(self):
         return self._jwt_payload
-
-@lru_cache()
-def GetDatabaseConnectionURL() -> str:
-    database_settings = DatabaseSettings()
-    return 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
-        database_settings.dbuser,
-        database_settings.dbpassword,
-        database_settings.dbhost,
-        database_settings.dbport,
-        database_settings.dbname
-    )
-
-@lru_cache()
-def GetJWTSettings() -> JWTSettings:
-    return JWTSettings()

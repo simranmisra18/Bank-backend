@@ -1,16 +1,17 @@
-from fastapi import FastAPI, Depends, Security
+from fastapi import FastAPI, Security
 
 from utils import VerifyToken
 from Exceptions import UnauthorizedException, UnauthenticatedException
 
 from sqlalchemy import func
-from sqlmodel import Session, create_engine, select
-from Settings import GetDatabaseConnectionURL
+from sqlmodel import select
 
 from SQLModels.Branch import BranchPublic, Branch
 from SQLModels.Customers import Customers, CustomersPublic, CustomersCreate
 
 from fastapi.middleware.cors import CORSMiddleware
+
+from database import get_database_session
 
 app = FastAPI() # Starts server and listens on http://localhost:8000
 app.add_middleware(
@@ -21,17 +22,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-engine = create_engine(GetDatabaseConnectionURL())
 auth_utils = VerifyToken()
-
-def get_session() -> Session:
-    with Session(engine) as session:
-        yield session
 
 @app.get("/api/login")
 async def login(branch_id: str,
-                password_hash: str,
-                session: Session = Depends(get_session)) -> dict: # session: Session ... - include in ALL API calls
+                password_hash: str) -> dict:
+    # Get database session
+    session = next(get_database_session(branch_id)) # Connection to required database
+
     # Query for authenticating user
     branch_select = select(Branch).where(Branch.branch_id == branch_id, Branch.password_hash == password_hash)
 
@@ -51,8 +49,10 @@ async def login(branch_id: str,
 @app.get("/api/users")
 async def login(branchid: str,
                 offset: int,
-                session: Session = Depends(get_session), # session: Session ... - include in ALL API calls
                 auth_result: str = Security(auth_utils.verify)) -> dict: # include in ALL API calls that require authenticated user
+    # Get database session
+    session = next(get_database_session(branchid))
+
     # Aggregate count
     customer_count_query = select(func.count(Customers.customer_id)).where(Customers.branch_id == branchid).offset(offset)
     customer_count = session.exec(customer_count_query).first()
@@ -67,7 +67,7 @@ async def login(branchid: str,
     return {'count': customer_count, 'data': customer_data, 'offset': offset}
 
 @app.post("/api/adduser")
-async def adduser(customer: CustomersCreate, session: Session = Depends(get_session), auth_result: str = Security(auth_utils.verify)) -> CustomersPublic:
+async def adduser(customer: CustomersCreate, auth_result: str = Security(auth_utils.verify)) -> CustomersPublic:
     print('Customer CREATE: {}'.format(customer))
     # Need to write code to create customer in DB
     return CustomersPublic.model_validate(customer)
