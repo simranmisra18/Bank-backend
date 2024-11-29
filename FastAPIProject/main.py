@@ -1,13 +1,16 @@
-from fastapi import FastAPI, Security
+from decimal import Decimal
+
+from fastapi import FastAPI, Security, Body
+from typing import Annotated
 
 from utils import VerifyToken
-from Exceptions import UnauthorizedException, UnauthenticatedException
+from Exceptions import UnauthenticatedException, UnauthorizedException
 
 from sqlalchemy import func
 from sqlmodel import select
 
 from SQLModels.Branch import BranchPublic, Branch
-from SQLModels.Customers import Customers, CustomersPublic, CustomersCreate
+from SQLModels.Customers import Customers, CustomersPublic, CustomersCreate, CustomersTransfer
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -46,6 +49,7 @@ async def login(branch_id: str,
     # Prepare response
     return {"token": token, "data": branch}
 
+
 @app.get("/api/users")
 async def login(branchid: str,
                 offset: int,
@@ -65,6 +69,52 @@ async def login(branchid: str,
     customer_data = [CustomersPublic.model_validate(customer) for customer in customers]
 
     return {'count': customer_count, 'data': customer_data, 'offset': offset}
+
+
+@app.post("/api/transfer")
+async def transfer(customer_one: Annotated[CustomersPublic, Body(embed=True)],
+                   customer_two: Annotated[CustomersPublic, Body(embed=True)],
+                   amount: Annotated[Decimal, Body(embed=True)],
+                   auth_result: str = Security(auth_utils.verify)) -> dict:
+
+
+    session_one, session_two = None, None
+    try:
+        session_one = next(get_database_session(customer_one.branch_id))
+        session_two = next(get_database_session(customer_two.branch_id))
+
+        if session_one is None or session_two is None:
+            raise Exception()
+    except Exception as error:
+        raise UnauthorizedException('Invalid branch specified')
+
+    try:
+        customer_one_check_query = select(Customers).where(Customers.branch_id == customer_one.branch_id,
+                                                           Customers.customer_id == customer_one.customer_id)
+
+        customer_two_check_query = select(Customers).where(Customers.branch_id == customer_two.branch_id,
+                                                           Customers.customer_id == customer_two.customer_id)
+
+        customer_one_object = session_one.exec(customer_one_check_query).one()
+        customer_two_object = session_two.exec(customer_two_check_query).one()
+
+        if customer_one_object.balance < amount:
+            raise Exception()
+
+        customer_one_object.balance -= amount
+        customer_two_object.balance += amount
+
+        session_one.add(customer_one_object)
+        session_two.add(customer_two_object)
+
+        session_one.commit()
+        session_two.commit()
+    except Exception as error:
+        session_one.rollback()
+        session_two.rollback()
+        raise UnauthorizedException('Amount could not be transferred')
+
+    return {'status': 'Transfer successful!'}
 
 @app.post("/api/adduser")
 async def adduser(customer: CustomersCreate, auth_result: str = Security(auth_utils.verify)) -> CustomersPublic:

@@ -1,6 +1,8 @@
 import enum
 
 from datetime import datetime
+
+from pydantic.v1 import NoneStr
 from sqlmodel import Field, SQLModel, Enum
 from decimal import Decimal
 
@@ -33,17 +35,17 @@ class Customers(CustomersBase, table=True):
     balance: Decimal = Field(default=0, max_digits=15, decimal_places=2)
 
 class CustomersPublic(CustomersBase):
-    customer_id: str
-    first_name: str
+    customer_id: str # REQUIRED ATTRIBUTE
+    first_name: str | None = None
     middle_name: str | None = None
-    last_name: str
-    pincode: int
-    credit_limit: Decimal
-    credit_usage: Decimal
-    credit_score: int
-    registration_time: datetime
-    branch_id: str
-    balance: Decimal
+    last_name: str | None = None
+    pincode: int | None = None
+    credit_limit: Decimal | None = None
+    credit_usage: Decimal | None = None
+    credit_score: int | None = None
+    registration_time: datetime | None = None
+    branch_id: str # REQUIRED ATTRIBUTE
+    balance: Decimal | None = None
 
 class CustomersCreate(CustomersBase):
     first_name: str
@@ -52,3 +54,9 @@ class CustomersCreate(CustomersBase):
     loc: str | None = None
     pincode: int
     st: ST = Field(Enum(ST))
+
+class CustomersTransfer(CustomersBase):
+    first_name: str | None = None
+    customer_id: str
+    branch_id: str
+    balance: Decimal
