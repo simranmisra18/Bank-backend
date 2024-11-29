@@ -3,13 +3,23 @@
 NOTE: Make sure you do not have anything running on ports 8000 and 3000.
 
 ## Docker:
-1. Run 'docker pull postgres'
-2. Unzip Dockerfile.zip
-3. Open unzipped Dockerfile folder in Powershell
-4. Run 'docker build -t bank-postgres .' in powershell at above path obtained after unzipping.
-5. Run 'docker image ls' and verify that you see an image named 'bank-postgres' .
-6. Run 'docker run --name bankdb -p 5433:5432 --restart=always -d bank-postgres' .
-7. Run 'docker ps' and verify that you see the 'bankdb' container running.
+1. There would be 2 instances of docker running for the Arizona and Texas branch.
+2. Open 'Postgres Docker Folder' --> Arizona. 
+3. Run 'docker pull postgres'
+4. Unzip Dockerfile.zip
+5. Open unzipped Dockerfile folder in Powershell.
+6. Run 'docker build -t az-branch .' in powershell at above path obtained after unzipping.
+7. Run 'docker image ls' and verify that you see an image named 'az-branch' .
+8. Run 'docker run --name az-branch -p 5433:5432 --restart=always -d az-branch' .
+9. Run 'docker ps' and verify that you see the 'az-branch' container running.
+
+10. Open 'Postgres Docker Folder' --> Texas.
+12. Unzip Dockerfile.zip
+13. Open unzipped Dockerfile folder in Powershell.
+14. Run 'docker build -t tx-branch .' in powershell at above path obtained after unzipping.
+15. Run 'docker image ls' and verify that you see an image named 'tx-branch' .
+16. Run 'docker run --name tx-branch -p 5433:5432 --restart=always -d tx-branch' .
+17. Run 'docker ps' and verify that you see the 'tx-branch' container running.
  
 ## Python
 1. Install Python 3.12
