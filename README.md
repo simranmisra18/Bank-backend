@@ -2,6 +2,7 @@
 
 # 1. Build Docker images
 docker build -t frontend frontend/
+
 docker build -t backend backend/
 docker build -t az-branch database/az-branch/
 docker build -t tx-branch database/tx-branch/
