@@ -1,5 +1,13 @@
 ## Instructions for running this project
 
+# Pre-requisites
+Please have the following installations ready before doing the below steps:
+1. Docker
+2. Postman
+
+#Steps
+Run the below commands in Poweshell/Bash one by one in this folder containing the README.md file.
+
 # 1. Build Docker images
 1. docker build -t frontend frontend/
 2. docker build -t backend backend/
