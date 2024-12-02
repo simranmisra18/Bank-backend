@@ -1,18 +1,18 @@
 ## Instructions for running this project
 
 # 1. Build Docker images
-docker build -t frontend frontend/
+1. docker build -t frontend frontend/
+2. docker build -t backend backend/
+3. docker build -t az-branch database/az-branch/
+4. docker build -t tx-branch database/tx-branch/
 
-docker build -t backend backend/
-docker build -t az-branch database/az-branch/
-docker build -t tx-branch database/tx-branch/
 
 # 2. Run Docker images
-docker network create newnet
-docker run -d --name frontend --network newnet --network-alias frontend -p 3000:3000 frontend
-docker run -d --name backend --network newnet --network-alias backend -p 8000:8000 backend
-docker run --name az-branch -p 5433:5432 --network newnet --network-alias az-branch --restart=always -d az-branch
-docker run --name tx-branch -p 5434:5432 --network newnet --network-alias tx-branch --restart=always -d tx-branch
+1. docker network create newnet
+2. docker run -d --name frontend --network newnet --network-alias frontend -p 3000:3000 frontend
+3. docker run -d --name backend --network newnet --network-alias backend -p 8000:8000 backend
+4. docker run --name az-branch -p 5433:5432 --network newnet --network-alias az-branch --restart=always -d az-branch
+5. docker run --name tx-branch -p 5434:5432 --network newnet --network-alias tx-branch --restart=always -d tx-branch
 
 # 3. Check status
 docker ps -a
