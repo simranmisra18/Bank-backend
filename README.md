@@ -50,7 +50,7 @@ This proof of concept was successfully demonstrated in a local
 environment, but due to resource limitations and integration 
 challenges, we couldn't integrate it with the hosted application.
 
-### B. LW Locks 
+### B. LWLocks 
 
  LWLocks are lightweight synchronization mechanisms in 
 PostgreSQL that protect shared resources, such as buffers and 
