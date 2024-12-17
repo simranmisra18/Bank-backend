@@ -24,7 +24,7 @@ NOTE: Make sure you do not have anything running on ports 8000 and 3000.
 <img width="391" alt="image" src="https://github.com/user-attachments/assets/7a0284bf-b1ae-47af-b2a4-31fb9cef5ad8" />
 
 ## Implementation Details
-### 2PC Transactions
+### A. 2PC Transactions
 
  The 2-Phase Commit (2PC) protocol ensures that 
 transactions remain consistent across multiple databases. It 
@@ -49,5 +49,38 @@ and credit. In case of failure, the transaction is rolled back.
 This proof of concept was successfully demonstrated in a local 
 environment, but due to resource limitations and integration 
 challenges, we couldn't integrate it with the hosted application.
+
+### B. LW Locks 
+
+ LWLocks are lightweight synchronization mechanisms in 
+PostgreSQL that protect shared resources, such as buffers and 
+internal data structures, ensuring safe access in a multi-process 
+environment. They are faster and more resource-efficient than 
+traditional locks, making them ideal for internal database 
+operations. By using LWLocks, PostgreSQL can maintain 
+concurrency 
+without 
+slowing 
+down performance. 
+Serialization, on the other hand, ensures that concurrent 
+transactions produce results as if they were executed one after 
+the other, preventing conflicts. PostgreSQL achieves this 
+through Serializable Snapshot Isolation (SSI), which helps 
+maintain data consistency while supporting high levels of 
+concurrency. This is particularly crucial for financial systems, 
+like our distributed banking application, where data integrity 
+and performance are both key priorities.
+ Our system is designed to handle multiple transactions 
+simultaneously. This ensures that the users can perform 
+operations like deposits, withdrawals, or transfers without 
+waiting for other transactions to be completed. We have 
+implemented Mutex locks, which are used to maintain data 
+consistency during asynchronous operations, preventing 
+issues such as race conditions or deadlocks. Mutex locks 
+ensure atomicity in transactions by failing inconsistent 
+operations, such as simultaneous asynchronous transactions 
+that might conflict. For instance, if two deposits of $8 are 
+processed concurrently on an account with a balance limit of 
+$16, the system ensures no balance exceeds the limit.
 
 
