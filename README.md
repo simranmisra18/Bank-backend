@@ -72,7 +72,7 @@ docker image rm backend
 docker image rm az-branch
 docker image rm tx-branch
 
-## Architecture Diagram
+# Architecture Diagram
 <img width="391" alt="image" src="https://github.com/user-attachments/assets/7a0284bf-b1ae-47af-b2a4-31fb9cef5ad8" />
 
 ## Implementation Details
